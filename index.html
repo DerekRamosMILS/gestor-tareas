@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cauce: gestor de tareas del equipo de Afluente Datos. Agrega, edita, completa y elimina tareas; se guardan en tu navegador.">
+  <title>Cauce | Gestor de tareas de Afluente Datos</title>
+
+  <!-- Tipografías: IBM Plex Sans (texto) e IBM Plex Mono (detalles técnicos) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <!-- defer: el script se ejecuta cuando el HTML ya está cargado -->
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+  <!-- ========== ENCABEZADO ========== -->
+  <header class="encabezado">
+    <div class="encabezado__contenido">
+      <p class="marca">Afluente <span>Datos</span></p>
+      <h1>Cauce</h1>
+      <p class="encabezado__lema">El gestor de tareas del equipo. Cada pendiente es un afluente; aquí los reunimos en un solo cauce.</p>
+      <p class="encabezado__fecha" id="fecha-hoy"></p>
+    </div>
+  </header>
+
+  <main class="app" id="contenido">
+
+    <!-- ========== PANEL LATERAL: nueva tarea y resumen ========== -->
+    <div class="app__lateral">
+      <section class="panel" aria-labelledby="titulo-nueva">
+        <h2 id="titulo-nueva" class="panel__titulo">Nueva tarea</h2>
+
+        <!-- novalidate: la validación la hace app.js para mostrar mensajes propios -->
+        <form id="form-tarea" class="nueva-tarea" novalidate>
+          <label for="input-tarea" class="nueva-tarea__etiqueta">¿Qué hay que hacer?</label>
+          <div class="nueva-tarea__fila">
+            <input type="text" id="input-tarea" name="tarea" maxlength="120" autocomplete="off"
+                   placeholder="Ej. Revisar el pipeline de ventas" aria-describedby="mensaje-error">
+            <button type="submit" id="btn-agregar" class="boton">Agregar tarea</button>
+          </div>
+          <p id="mensaje-error" class="mensaje-error" role="alert"></p>
+        </form>
+      </section>
+
+      <section class="panel resumen" aria-labelledby="titulo-resumen">
+        <h2 id="titulo-resumen" class="panel__titulo">Resumen</h2>
+        <dl class="resumen__datos">
+          <div class="resumen__dato">
+            <dt>Total</dt>
+            <dd id="dato-total">0</dd>
+          </div>
+          <div class="resumen__dato">
+            <dt>Pendientes</dt>
+            <dd id="dato-pendientes">0</dd>
+          </div>
+          <div class="resumen__dato resumen__dato--completas">
+            <dt>Completadas</dt>
+            <dd id="dato-completadas">0</dd>
+          </div>
+        </dl>
+        <div class="progreso">
+          <div class="progreso__cabecera">
+            <span id="etiqueta-progreso">Avance del cauce</span>
+            <span id="dato-porcentaje" class="progreso__valor">0%</span>
+          </div>
+          <div class="progreso__pista" role="progressbar" aria-labelledby="etiqueta-progreso"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="barra-progreso">
+            <div class="progreso__relleno" id="relleno-progreso"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ========== LISTA DE TAREAS ========== -->
+    <section class="panel panel--lista" aria-labelledby="titulo-lista">
+      <div class="lista-cabecera">
+        <h2 id="titulo-lista" class="panel__titulo" tabindex="-1">Tareas</h2>
+        <div class="filtros" role="group" aria-label="Filtrar tareas">
+          <button type="button" class="filtro" data-filtro="todas" aria-pressed="true">Todas</button>
+          <button type="button" class="filtro" data-filtro="pendientes" aria-pressed="false">Pendientes</button>
+          <button type="button" class="filtro" data-filtro="completadas" aria-pressed="false">Completadas</button>
+        </div>
+      </div>
+
+      <!-- Aquí app.js inserta cada tarea como un <li> -->
+      <ul id="lista-tareas" class="lista-tareas"></ul>
+
+      <div id="estado-vacio" class="estado-vacio" hidden>
+        <svg class="estado-vacio__icono" viewBox="0 0 120 64" aria-hidden="true" focusable="false">
+          <path d="M6 18 C40 18 50 32 84 32" />
+          <path d="M6 46 C40 46 50 32 84 32" />
+          <path d="M84 32 H114" />
+          <circle cx="6" cy="18" r="5" />
+          <circle cx="6" cy="46" r="5" />
+        </svg>
+        <p id="estado-vacio-texto" class="estado-vacio__texto"></p>
+      </div>
+
+      <div class="lista-pie">
+        <p id="contador" class="contador"></p>
+        <button type="button" id="btn-limpiar" class="boton-texto">Eliminar completadas</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Aviso flotante con opción de deshacer al eliminar -->
+  <div id="aviso" class="aviso" hidden>
+    <p id="aviso-texto" class="aviso__texto"></p>
+    <button type="button" id="btn-deshacer" class="aviso__accion">Deshacer</button>
+  </div>
+
+  <!-- Región invisible que lee en voz alta los cambios a los lectores de pantalla -->
+  <p id="anunciador" class="sr-only" aria-live="polite"></p>
+
+  <!-- ========== PIE DE PÁGINA ========== -->
+  <footer class="pie">
+    <p>&copy; 2026 Afluente Datos · Las tareas se guardan en este navegador mediante LocalStorage.</p>
+    <p class="pie__nota">Empresa ficticia creada con fines académicos · Universidad Tecmilenio.</p>
+  </footer>
+
+</body>
+</html>
